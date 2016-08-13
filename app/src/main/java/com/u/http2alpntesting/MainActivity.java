@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new H1GetRunnable().run();
+                new GetRunnable().run();
             }
         });
     }
