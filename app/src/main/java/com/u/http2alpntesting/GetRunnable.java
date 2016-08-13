@@ -1,10 +1,7 @@
 package com.u.http2alpntesting;
 
-import java.lang.reflect.Field;
-
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.internal.Platform;
 
 /**
  * Check OkHttp::Platform for a lot of useful information (such as how alpn is detected or that
@@ -23,8 +20,6 @@ import okhttp3.internal.Platform;
  */
 public class GetRunnable implements Runnable {
 
-    private boolean alreadyTriedToApplyJettyPlatform = false;
-
     @Override
     public void run() {
         OkHttpClient client = new OkHttpClient();
@@ -34,20 +29,6 @@ public class GetRunnable implements Runnable {
                 .header("User-Agent", "Chrome/23.0.1271.95")
                 .get()
                 .build();
-
-        if (!alreadyTriedToApplyJettyPlatform) {
-            Platform jettyPlatform = JdkWithJettyBootPlatform.buildIfSupported();
-            if (jettyPlatform != null) {
-                try {
-                    Field platform = Platform.class.getDeclaredField("PLATFORM");
-                    platform.setAccessible(true);
-                    platform.set(Platform.get(), jettyPlatform);
-                } catch (Exception e) {
-                }
-            }
-
-            alreadyTriedToApplyJettyPlatform = true;
-        }
 
         client.newCall(request).enqueue(new LogCallback(this));
     }
