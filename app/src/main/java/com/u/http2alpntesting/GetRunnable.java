@@ -1,6 +1,7 @@
 package com.u.http2alpntesting;
 
-import java.lang.reflect.Field;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -23,33 +24,27 @@ import okhttp3.internal.Platform;
  */
 public class GetRunnable implements Runnable {
 
-    private boolean alreadyTriedToApplyJettyPlatform = false;
-
     @Override
     public void run() {
-        OkHttpClient client = new OkHttpClient();
+        try {
+            TLSSocketFactory socketFactory = new TLSSocketFactory();
 
-        Request request = new Request.Builder()
-                .url("https://www.google.com.ar/")
-                .header("User-Agent", "Chrome/23.0.1271.95")
-                .get()
-                .build();
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .sslSocketFactory(socketFactory, Platform.get().trustManager(socketFactory))
+                    .cache(null)
+                    .build();
 
-        if (Platform.get() == null  || !alreadyTriedToApplyJettyPlatform) {
-            Platform jettyPlatform = JdkWithJettyBootPlatform.buildIfSupported();
-            if (jettyPlatform != null) {
-                try {
-                    Field platform = Platform.class.getDeclaredField("PLATFORM");
-                    platform.setAccessible(true);
-                    platform.set(Platform.get(), jettyPlatform);
-                } catch (Exception e) {
-                }
-            }
+            Request request = new Request.Builder()
+                    .url("https://www.google.com.ar/")
+                    .header("User-Agent", "Chrome/23.0.1271.95")
+                    .get()
+                    .build();
 
-            alreadyTriedToApplyJettyPlatform = true;
+            client.newCall(request).enqueue(new LogCallback(this));
+        } catch (KeyManagementException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
 
-        client.newCall(request).enqueue(new LogCallback(this));
     }
 
 }
