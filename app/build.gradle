@@ -30,8 +30,8 @@ tasks.withType(JavaCompile) {
     doFirst {
         println System.properties.'home'
         println options.bootClasspath
-        options.bootClasspath += ';'+'~/AndroidStudioProjects/Http2ALPNTesting/app/libs/alpn-boot-7.1.3.v20150130.jar'
-
+        options.bootClasspath += File.pathSeparator+'Users/saguilera/AndroidStudioProjects/Http2ALPNTesting/app/libs/alpn-boot-7.1.3.v20150130.jar'
+        println options.bootClasspath
     }
 }
 //
